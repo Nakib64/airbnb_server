@@ -190,13 +190,11 @@ async function connectDB() {
 				res.status(500).json({ message: "Internal server error" });
 			}
 		});
+		app.listen(PORT, () => {
+			console.log(`🚀 Server running at http://localhost:${PORT}`);
+		});
 	} catch (err) {
 		console.error("❌ MongoDB connection error:", err);
 	}
 }
 connectDB();
-
-// Start server
-// app.listen(PORT, () => {
-// 	console.log(`🚀 Server running at http://localhost:${PORT}`);
-// });
