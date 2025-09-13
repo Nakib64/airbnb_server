@@ -221,10 +221,10 @@ async function connectDB() {
     }
 
     // 2️⃣ If hotels or experiences → filter by division
-    else if (route === "hotel" || route === "experience") {
-      const collection = route === "hotel" ? hotels : experiences;
-      const trans_en = route === "hotel" ? hotel_trans_en : experiences_trans_en;
-      const trans_bn = route === "hotel" ? hotel_trans_bn : experiences_trans_bn;
+    else if (route == "hotel" || route == "experience") {
+      const collection = route == "hotel" ? hotels : experiences;
+      const trans_en = route == "hotel" ? hotel_trans_en : experiences_trans_en;
+      const trans_bn = route == "hotel" ? hotel_trans_bn : experiences_trans_bn;
 
       listings = await collection.find({ division: category }).toArray();
       const ids = listings.map((l) => l._id);
@@ -235,11 +235,11 @@ async function connectDB() {
         translations = await trans_bn.find({ listingId: { $in: ids } }).toArray();
       }
     }
-
+	console.log(translations);
     // 3️⃣ Merge listings with translations
-    const merged = listings.map((listing) => {
-      const translation = translations.find((t) =>
-        t.listingId.equals(listing._id)
+    const merged = listings?.map((listing) => {
+      const translation = translations?.find((t) =>
+        t.listingId == (listing._id)
       );
       return {
         ...listing,
@@ -248,12 +248,7 @@ async function connectDB() {
       };
     });
 
-    // 4️⃣ Shuffle results (optional)
-    for (let i = merged.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [merged[i], merged[j]] = [merged[j], merged[i]];
-    }
-
+	console.log(merged);
     res.json(merged);
   } catch (err) {
     console.error(err);
