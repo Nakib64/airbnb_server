@@ -192,77 +192,75 @@ async function connectDB() {
 		});
 
 		app.get("/search", async (req, res) => {
-			try {
-				const { route, category, language } = req.query;
+  try {
+    const { route, category, language } = req.query;
 
-				if (!route || !category || !language) {
-					return res
-						.status(400)
-						.json({ message: "route, category and language are required" });
-				}
+    if (!route || !category || !language) {
+      return res
+        .status(400)
+        .json({ message: "route, category and language are required" });
+    }
 
-				let listings = [];
-				let translations = [];
+    let listings = [];
+    let translations = [];
 
-				// 1️⃣ If services → filter by category
-				if (route === "services") {
-					listings = await services.find({ category }).toArray();
-					const ids = listings.map((l) => l._id);
+    // 1️⃣ If services → filter by category
+    if (route === "services") {
+      listings = await services.find({ category }).toArray();
+      const ids = listings.map((l) => l._id);
 
-					if (language === "en") {
-						translations = await services_trans_en
-							.find({ listingId: { $in: ids } })
-							.toArray();
-					} else if (language === "bn") {
-						translations = await services_trans_bn
-							.find({ listingId: { $in: ids } })
-							.toArray();
-					}
-				}
+      if (language === "en") {
+        translations = await services_trans_en
+          .find({ listingId: { $in: ids } })
+          .toArray();
+      } else if (language === "bn") {
+        translations = await services_trans_bn
+          .find({ listingId: { $in: ids } })
+          .toArray();
+      }
+    }
 
-				// 2️⃣ If hotels or experiences → filter by division
-				else if (route === "hotel" || route === "experience") {
-					const collection = route === "hotel" ? hotels : experiences;
-					const trans_en =
-						route === "hotel" ? hotel_trans_en : experiences_trans_en;
-					const trans_bn =
-						route === "hotel" ? hotel_trans_bn : experiences_trans_bn;
+    // 2️⃣ If hotels or experiences → filter by division
+    else if (route === "hotel" || route === "experience") {
+      const collection = route === "hotel" ? hotels : experiences;
+      const trans_en = route === "hotel" ? hotel_trans_en : experiences_trans_en;
+      const trans_bn = route === "hotel" ? hotel_trans_bn : experiences_trans_bn;
 
-					listings = await collection.find({ division: category }).toArray();
-					console.log(listings);
-					const ids = listings.map((l) => l._id);
+      listings = await collection.find({ division: category }).toArray();
+      const ids = listings.map((l) => l._id);
 
-					if (language === "en") {
-						translations = await trans_en.find({ listingId: { $in: ids } }).toArray();
-					} else if (language === "bn") {
-						translations = await trans_bn.find({ listingId: { $in: ids } }).toArray();
-					}
-				}
+      if (language === "en") {
+        translations = await trans_en.find({ listingId: { $in: ids } }).toArray();
+      } else if (language === "bn") {
+        translations = await trans_bn.find({ listingId: { $in: ids } }).toArray();
+      }
+    }
 
-				// 3️⃣ Merge listings with translations
-				const merged = listings.map((listing) => {
-					const translation = translations.find((t) =>
-						t.listingId.equals(listing._id)
-					);
-					return {
-						...listing,
-						title: translation ? translation.title : listing.title,
-						description: translation ? translation.description : listing.description,
-					};
-				});
+    // 3️⃣ Merge listings with translations
+    const merged = listings.map((listing) => {
+      const translation = translations.find((t) =>
+        t.listingId.equals(listing._id)
+      );
+      return {
+        ...listing,
+        title: translation ? translation.title : listing.title,
+        description: translation ? translation.description : listing.description,
+      };
+    });
 
-				// 4️⃣ Shuffle results (optional)
-				for (let i = merged.length - 1; i > 0; i--) {
-					const j = Math.floor(Math.random() * (i + 1));
-					[merged[i], merged[j]] = [merged[j], merged[i]];
-				}
+    // 4️⃣ Shuffle results (optional)
+    for (let i = merged.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [merged[i], merged[j]] = [merged[j], merged[i]];
+    }
 
-				res.json(merged);
-			} catch (err) {
-				console.error(err);
-				res.status(500).json({ message: "Internal server error" });
-			}
-		});
+    res.json(merged);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 
 		app.listen(PORT, () => {
 			console.log(`🚀 Server running at http://localhost:${PORT}`);
