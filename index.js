@@ -221,14 +221,15 @@ async function connectDB() {
 				}
 
 				// 2️⃣ If hotels or experiences → filter by division
-				else if (route === "hotels" || route === "experiences") {
-					const collection = route === "hotels" ? hotels : experiences;
+				else if (route === "hotel" || route === "experience") {
+					const collection = route === "hotel" ? hotels : experiences;
 					const trans_en =
-						route === "hotels" ? hotel_trans_en : experiences_trans_en;
+						route === "hotel" ? hotel_trans_en : experiences_trans_en;
 					const trans_bn =
-						route === "hotels" ? hotel_trans_bn : experiences_trans_bn;
+						route === "hotel" ? hotel_trans_bn : experiences_trans_bn;
 
 					listings = await collection.find({ division: category }).toArray();
+					console.log(listings);
 					const ids = listings.map((l) => l._id);
 
 					if (language === "en") {
