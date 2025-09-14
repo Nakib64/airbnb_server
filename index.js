@@ -210,10 +210,10 @@ async function connectDB() {
 					if (language === "en") {
 						translations = await services_trans_en
 							.findOne({ listingId: id })
-							
+
 					} else if (language === "bn") {
 						translations = await services_trans_bn
-							.findOne({ listingId: _id})
+							.findOne({ listingId: id})
 							
 					}
 				}
